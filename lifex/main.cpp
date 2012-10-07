@@ -16,7 +16,7 @@
 
 const int width = 640;
 const int height = 480;
-const int ballsize = 4;
+const int ballsize = 8;
 const int rows = height / ballsize;
 const int cols = width  / ballsize;
 const std::string config_name = "config.json";
@@ -199,8 +199,8 @@ struct Life_eval{
 		int cols = pre_map.cols;
 		int rows = pre_map.rows;
 
-		for(int y = range.cols().begin();y<range.cols().end();y++){
-			for(int x = range.rows().begin();x<range.rows().end();x++){
+		for(int y = range.rows().begin();y<range.rows().end();y++){
+			for(int x = range.cols().begin();x<range.cols().end();x++){
 				int value = 0;			
 				Statue pre_state = DEAD;
 				Statue *p_stat = pre_map.status;
