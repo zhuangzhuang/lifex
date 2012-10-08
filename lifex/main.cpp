@@ -64,8 +64,9 @@ struct Map{
 struct Config{
 	std::string rulefile;
 	int ruleinit;
-	int frontcolor;
-	int backcolor;
+	unsigned int frontcolor;
+	unsigned int backcolor;
+        unsigned int linecolor;
 	unsigned int delay;
 
 	bool parse(const std::string& filename);
@@ -86,9 +87,13 @@ bool Config::parse(const std::string& filename)
 	}
 	rulefile   = root.get("rule_file","lexicon.txt").asString();
 	ruleinit   = root.get("rule_init",0).asInt();
-	frontcolor = root.get("front_color",0x0000000).asInt();
-	backcolor  = root.get("back_color",0x0000011).asInt();
+
+        frontcolor = root.get("front_color",0xffff22ff).asUInt();
+	backcolor  = root.get("back_color",0xff172b17).asUInt();
+        linecolor  = root.get("line_color",0xff7b8f17).asUInt();
+
 	delay      = root.get("delay",0).asUInt();
+        
 	return true;
 }
 
@@ -289,6 +294,12 @@ void change_map(Map& map,Rule& rule,bool& stop)
 	}
 }
 
+Uint32 uint2color(SDL_Surface *screen,unsigned int color)
+{
+        return SDL_MapRGB(screen->format,(color & 0x00ff0000) >> 16,
+                                         (color & 0x0000ff00) >> 8,
+                                         (color & 0x000000ff));
+}
 
 int main(int argc,char *argv[])
 {
@@ -328,9 +339,9 @@ int main(int argc,char *argv[])
 	}
 	
 //create color	
-	front_color = SDL_MapRGB(screen->format,255,34,225);
-	back_color  = SDL_MapRGB(screen->format,23,43,23);
-	line_color  = SDL_MapRGB(screen->format,123,143,23);
+        front_color = uint2color(screen,config.frontcolor);
+        back_color  = uint2color(screen,config.backcolor);
+        line_color  = uint2color(screen,config.linecolor);
 
 	bool running = true;
 	bool stop = false;
@@ -389,11 +400,8 @@ int main(int argc,char *argv[])
 			}
 			tbb::parallel_for(tbb::blocked_range2d<int,int>(0,rows,0,cols),
 									Life_eval(pre_map,nex_map));
-			//std::swap(pre_map.status,nex_map.status);
-			Statue *temp;
-			temp = pre_map.status;
-			pre_map.status = nex_map.status;
-			nex_map.status = temp;
+			std::swap(pre_map.status,nex_map.status);
+                        
 		}		
 
 		SDL_Flip(screen);
